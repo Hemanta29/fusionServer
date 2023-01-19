@@ -58,7 +58,8 @@ function auth(req, res, next) {
     var user = auth[0];
     var pass = auth[1];
     if (user == 'admin' && pass == 'password') {
-      res.session('user', 'admin', { signed: true });
+      // res.session('user', 'admin', { signed: true });
+      req.session.user = 'admin';
       next(); // authorized
     } else {
       var err = new Error('You are not authenticated!');
@@ -67,7 +68,7 @@ function auth(req, res, next) {
       next(err);
     }
   } else {
-    if (req.session.user === 'admin') {
+    if (req.signedCookies.user === 'admin') {
       next();
     }
     else {
