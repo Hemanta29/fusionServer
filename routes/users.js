@@ -73,9 +73,8 @@ userRouter.post('/login', (req, res, next) => {
   }
 })
 
-userRouter.get('/logout', (req, res) => {
-  console.log(req.session);
-  if (req.session) {
+userRouter.get('/logout', (req, res, next) => {
+  if (req.session.user === 'authenticated') {
     req.session.destroy();
     res.clearCookie('session-id');
     res.redirect('/');
