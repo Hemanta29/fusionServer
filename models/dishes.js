@@ -15,11 +15,12 @@ var commentSchema = new Schema({
         required: true
     },
     author: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    usePushEach: true
 });
 
 const dishSchema = new Schema({
@@ -55,7 +56,8 @@ const dishSchema = new Schema({
     },
     comments: [commentSchema]
 }, {
-    timestamps: true
+    timestamps: true,
+    usePushEach: true
 });
 
 var Dishes = mongoose.model('Dish', dishSchema);
