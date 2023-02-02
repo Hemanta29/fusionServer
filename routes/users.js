@@ -1,6 +1,7 @@
 var express = require('express');
 var User = require("../models/user");
 var authenticate = require('../authenticate');
+const cors = require('./cors');
 const bodyParser = require('body-parser');
 
 var passport = require('passport');
@@ -10,7 +11,7 @@ const userRouter = express.Router();
 userRouter.use(bodyParser.json());
 
 /* GET users listing. */
-userRouter.post('/signup', (req, res, next) => {
+userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(new User({ username: req.body.username }),
     req.body.password, (err, user) => {
       if (err) {
@@ -42,7 +43,7 @@ userRouter.post('/signup', (req, res, next) => {
     });
 });
 
-userRouter.post('/login', passport.authenticate('local', {
+userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local', {
   session: false
 }), (req, res) => {
   var token = authenticate.getToken({ _id: req.user._id });
@@ -51,7 +52,7 @@ userRouter.post('/login', passport.authenticate('local', {
   res.json({ success: true, token, status: 'You are successfully logged in!' });
 })
 
-userRouter.get('/logout', (req, res, next) => {
+userRouter.get('/logout', cors.corsWithOptions, (req, res, next) => {
   if (req.session.passport) {
     req.session.destroy();
     res.clearCookie('session-id');
@@ -64,15 +65,14 @@ userRouter.get('/logout', (req, res, next) => {
   }
 });
 
-userRouter.route('/')
-  .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
-    User.find({})
-      .then((users) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(users);
-      }, (err) => next(err))
-      .catch((err) => next(err));
-  })
+userRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+  User.find({})
+    .then((users) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(users);
+    }, (err) => next(err))
+    .catch((err) => next(err));
+})
 
 module.exports = userRouter;
